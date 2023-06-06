@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">DeliveryTestTask</string>
+    <string name="title_home">Home</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="home">Главная</string>
+    <string name="search">Поиск</string>
+    <string name="cart">Корзина</string>
+    <string name="account">Аккаунт</string>
+    <string name="cityExample">Москва</string>
+    <string name="dateExample">01 января, 2023</string>
+    <string name="categoryExample">Пекарни и кондитерские</string>
+    <string name="checkInternetConnection">Проверьте соединение с интернетом</string>
+    <string name="dishExample">Рататуй</string>
+</resources>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/dishRVImageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="128dp"
+            android:layout_marginEnd="16dp"
+            app:cardCornerRadius="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/dishRVImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:background="@color/dishCardBackgroundColor"
+                android:src="@drawable/dish_example" />
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/dishRVName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_pro_display_regular"
+            android:text="@string/dishExample"
+            android:textColor="@color/mainTextColor"
+            android:textAlignment="textStart"
+            android:textSize="@dimen/dishNameCardTextSize"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/dishRVImageContainer"
+            app:layout_constraintStart_toStartOf="@id/dishRVImageContainer"
+            app:layout_constraintEnd_toEndOf="@id/dishRVImageContainer" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>
