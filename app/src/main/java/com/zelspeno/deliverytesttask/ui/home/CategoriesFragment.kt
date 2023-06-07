@@ -1,10 +1,19 @@
 package com.zelspeno.deliverytesttask.ui.home
 
+import android.app.Dialog
+import android.content.Context
+import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -12,13 +21,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.squareup.picasso.Picasso
+import com.zelspeno.deliverytesttask.MainActivity
 import com.zelspeno.deliverytesttask.R
 import com.zelspeno.deliverytesttask.databinding.FragmentCategoriesBinding
 import com.zelspeno.deliverytesttask.source.Category
 import com.zelspeno.deliverytesttask.source.Dish
+import com.zelspeno.deliverytesttask.source.Tag
 import com.zelspeno.deliverytesttask.utils.viewModelCreator
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CategoriesFragment : Fragment() {
@@ -27,9 +37,14 @@ class CategoriesFragment : Fragment() {
 
     private val binding get() = _binding!!
 
-    private lateinit var adapter: DishesListRecyclerAdapter
+    private lateinit var adapterDishes: DishesListRecyclerAdapter
+    private lateinit var adapterTags: TagsListRecyclerAdapter
 
     private val viewModel by viewModelCreator { HomeViewModel() }
+
+    private lateinit var allDishesList: List<Dish>
+
+    private var sharedPref: SharedPreferences? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,20 +56,33 @@ class CategoriesFragment : Fragment() {
 
         val category = this.arguments?.getSerializable("category") as Category
 
+        sharedPref = activity?.getSharedPreferences("cart", Context.MODE_PRIVATE)
+
         binding.categoriesHeaderName.text = category.name
 
         binding.categoriesBackButton.setOnClickListener {
             viewModel.moveToFragment(view, R.id.navigation_home)
         }
 
+        fillUI()
+
+        return binding.root
+    }
+
+    /** Fill user's interface */
+    private fun fillUI() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.getDishesList()
                 viewModel.dishesList.collect {
                     val dishes = it
                     if (dishes != null) {
-                        adapter = DishesListRecyclerAdapter(dishes)
-                        sendDataToRecyclerView(view, adapter)
+                        allDishesList = viewModel.checkDishesOnErrors(dishes)
+                        val tags = viewModel.getTagsList(dishes)
+                        adapterDishes = DishesListRecyclerAdapter(viewModel.checkDishesOnErrors(dishes))
+                        adapterTags = TagsListRecyclerAdapter(tags)
+                        sendDataToDishesRecyclerView(view, adapterDishes)
+                        sendDataToTagsRecyclerView(view, adapterTags, adapterDishes)
                     } else {
                         Toast
                             .makeText(context, getString(R.string.checkInternetConnection), Toast.LENGTH_SHORT)
@@ -63,12 +91,10 @@ class CategoriesFragment : Fragment() {
                 }
             }
         }
-
-        return binding.root
     }
 
-    /** Init settings for RecyclerView */
-    private fun sendDataToRecyclerView(v: View?, adapterRV: DishesListRecyclerAdapter) {
+    /** Init settings for DishesRecyclerView */
+    private fun sendDataToDishesRecyclerView(v: View?, adapterRV: DishesListRecyclerAdapter) {
         val recyclerView = binding.categoriesRecyclerView
         with(recyclerView) {
             adapter = adapterRV
@@ -78,7 +104,25 @@ class CategoriesFragment : Fragment() {
         adapterRV.setOnItemClickListener(object :
             DishesListRecyclerAdapter.onItemClickListener {
             override fun onItemClick(dish: Dish) {
-                Log.d("dish", dish.toString())
+                viewModel.showDishDialog(v!!.context, dish, sharedPref)
+            }
+        })
+    }
+
+    /** Init settings for TagsRecyclerView */
+    private fun sendDataToTagsRecyclerView(v: View?,
+                                           adapterTags: TagsListRecyclerAdapter,
+                                           adapterDishes: DishesListRecyclerAdapter) {
+        val recyclerView = binding.tagsRecyclerView
+        with(recyclerView) {
+            adapter = adapterTags
+            layoutManager = LinearLayoutManager(recyclerView.context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        adapterTags.setOnItemClickListener(object :
+            TagsListRecyclerAdapter.onItemClickListener {
+            override fun onItemClick(tag: Tag) {
+                viewModel.onTagClick(tag, allDishesList, adapterTags, adapterDishes)
             }
         })
     }

@@ -6,4 +6,8 @@
     <dimen name="topBarBodyTextSize">14sp</dimen>
     <dimen name="kitchenCardTextSize">20sp</dimen>
     <dimen name="dishNameCardTextSize">14sp</dimen>
+    <dimen name="tagNameTextSize">14sp</dimen>
+    <dimen name="dishDialogNameTextSize">16sp</dimen>
+    <dimen name="dishDialogBodyTextSize">14sp</dimen>
+    <dimen name="dishDialogButtonTextSize">14sp</dimen>
 </resources>

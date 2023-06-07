@@ -1,22 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.cart.CartFragment">
 
-    <TextView
-        android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/cartToolbar"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:background="@color/mainBackgroundColor"
+        app:elevation="8dp"
+        android:elevation="8dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/cartLocationImage"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/location"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/cartUserCity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="textStart"
+                android:text="@string/cityExample"
+                android:textColor="@color/mainTextColor"
+                android:fontFamily="@font/sf_pro_display_medium"
+                android:textSize="@dimen/topBarHeaderTextSize"
+                android:layout_marginStart="4dp"
+                app:layout_constraintStart_toEndOf="@id/cartLocationImage"
+                app:layout_constraintTop_toTopOf="@id/cartLocationImage"
+                app:layout_constraintBottom_toBottomOf="@id/cartLocationImage"/>
+
+            <TextView
+                android:id="@+id/cartUserDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="textEnd"
+                android:text="@string/dateExample"
+                android:textColor="@color/mainTextColor"
+                android:alpha="0.5"
+                android:fontFamily="@font/sf_pro_display_regular"
+                android:textSize="@dimen/topBarBodyTextSize"
+                app:layout_constraintStart_toStartOf="@id/cartUserCity"
+                app:layout_constraintTop_toBottomOf="@id/cartUserCity" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cartUserPhotoContainer"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="25dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    android:id="@+id/cartUserPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/profile_photo" />
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/cartRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:listitem="@layout/cart_recyclerview_item"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/cartToolbar"
+        app:layout_constraintBottom_toTopOf="@id/cartPay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/cartPay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/pay"
+        android:background="@drawable/clicked_tag_style"
+        android:textColor="@color/white"
+        android:fontFamily="@font/sf_pro_display_medium"
+        android:textSize="@dimen/dishDialogButtonTextSize"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toStartOf="@id/cartRecyclerView"
+        app:layout_constraintEnd_toEndOf="@id/cartRecyclerView"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,4 +11,5 @@
     <color name="mainBackgroundColor">#FFFFFFFF</color>
     <color name="mainTextColor">#FF000000</color>
     <color name="dishCardBackgroundColor">#f8f7f5</color>
+    <color name="addDeletePanelBackgroundColor">#EFEEEC</color>
 </resources>

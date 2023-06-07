@@ -3,17 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/home_navigation">
 
-    <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.zelspeno.deliverytesttask.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
-        <action
-            android:id="@+id/action_navigation_home_to_navigation_categories"
-            app:destination="@id/navigation_categories" />
-    </fragment>
+    <include app:graph="@navigation/home_navigation" />
 
     <fragment
         android:id="@+id/navigation_search"
@@ -32,13 +24,5 @@
         android:name="com.zelspeno.deliverytesttask.ui.account.AccountFragment"
         android:label="@string/account"
         tools:layout="@layout/fragment_account" />
-    <fragment
-        android:id="@+id/navigation_categories"
-        android:name="com.zelspeno.deliverytesttask.ui.home.CategoriesFragment"
-        android:label="fragment_categories"
-        tools:layout="@layout/fragment_categories" >
-        <action
-            android:id="@+id/action_navigation_categories_to_navigation_home"
-            app:destination="@id/navigation_home" />
-    </fragment>
+
 </navigation>

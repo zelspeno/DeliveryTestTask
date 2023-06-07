@@ -11,4 +11,11 @@
     <string name="categoryExample">Пекарни и кондитерские</string>
     <string name="checkInternetConnection">Проверьте соединение с интернетом</string>
     <string name="dishExample">Рататуй</string>
+    <string name="tagExample">Все меню</string>
+    <string name="costExample">799 ₽</string>
+    <string name="weightExample">· 560г</string>
+    <string name="descriptionExample">Рыба маринованная со специями, лимонным соком, соевым соусом и запечeнная в духовке с лучком, томатами и картошечкой под золотистой майонезно-сырной шубкой</string>
+    <string name="addToCart">Добавить в корзину</string>
+    <string name="pay">Оплатить</string>
+    <string name="inDeveloping">В разработке...</string>
 </resources>

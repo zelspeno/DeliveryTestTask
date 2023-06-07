@@ -16,18 +16,32 @@ data class CategoriesJSONObject(
 )
 
 data class Dish (
-    val id: Long,
-    val name: String,
-    val price: Double,
-    val weight: Double,
-    val description: String,
+    val id: Long?,
+    val name: String?,
+    val price: Double?,
+    val weight: Double?,
+    val description: String?,
     @SerializedName("image_url")
     val imageUrl: String?,
     @SerializedName("tegs")
-    val tags: List<String>
+    val tags: List<String>?
 ): Serializable
 
 data class DishesJSONObject(
     @SerializedName("dishes")
     val dishes: List<Dish>
+)
+
+data class Tag(
+    val name: String,
+    val onClick: Boolean
+)
+
+data class CartDish(
+    val id: Long?,
+    val name: String?,
+    val price: String?,
+    val weight: String?,
+    val imageUrl: String?,
+    var count: Int?
 )

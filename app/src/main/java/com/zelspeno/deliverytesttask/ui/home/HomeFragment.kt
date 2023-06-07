@@ -41,22 +41,13 @@ class HomeFragment : Fragment() {
 
         binding.homeUserDate.text = viewModel.getUIDateTimeFromUnix(curTime)
 
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.CREATED) {
-//                viewModel.getUserLocation(requireContext(), requireActivity())
-//                viewModel.userCity.collect {
-//                    val city = it
-//                    Log.d("city", city.toString())
-//                    if (city != null) {
-//                        binding.homeUserCity.visibility = View.VISIBLE
-//                        binding.homeUserCity.text = it
-//                    } else {
-//                        binding.homeUserCity.visibility = View.INVISIBLE
-//                    }
-//                }
-//            }
-//        }
+        fillUI()
 
+        return binding.root
+    }
+
+    /** Fill user's interface */
+    private fun fillUI() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.getCategoriesList()
@@ -73,8 +64,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-
-        return binding.root
     }
 
     /** Init settings for RecyclerView */
@@ -93,10 +82,5 @@ class HomeFragment : Fragment() {
                 viewModel.moveToFragment(v, R.id.navigation_categories, bundle)
             }
         })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
