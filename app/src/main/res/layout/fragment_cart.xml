@@ -80,18 +80,39 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cartRecyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/cartSwipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        tools:listitem="@layout/cart_recyclerview_item"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/cartToolbar"
         app:layout_constraintBottom_toTopOf="@id/cartPay"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/cartRecyclerViewNotFound"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/sf_pro_display_medium"
+                android:textColor="@color/mainTextColor"
+                android:text="@string/pleaseSwipeToRefresh"
+                android:gravity="center"
+                android:visibility="invisible"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/cartRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/cart_recyclerview_item" />
+
+        </FrameLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <Button
         android:id="@+id/cartPay"
@@ -103,8 +124,8 @@
         android:fontFamily="@font/sf_pro_display_medium"
         android:textSize="@dimen/dishDialogButtonTextSize"
         android:layout_marginBottom="8dp"
-        app:layout_constraintStart_toStartOf="@id/cartRecyclerView"
-        app:layout_constraintEnd_toEndOf="@id/cartRecyclerView"
+        app:layout_constraintStart_toStartOf="@id/cartSwipeRefreshLayout"
+        app:layout_constraintEnd_toEndOf="@id/cartSwipeRefreshLayout"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

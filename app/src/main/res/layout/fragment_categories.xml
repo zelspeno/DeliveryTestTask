@@ -71,25 +71,59 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tagsRecyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/categoriesSwipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        tools:listitem="@layout/tag_recyclerview_item"
         android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/categoriesToolbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/categoriesRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        tools:listitem="@layout/dish_recyclerview_item"
-        android:layout_margin="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tagsRecyclerView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/categoriesRecyclerViewNotFound"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/sf_pro_display_medium"
+                android:textColor="@color/mainTextColor"
+                android:text="@string/pleaseSwipeToRefresh"
+                android:gravity="center"
+                android:visibility="invisible"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/categoriesRecyclerViewsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/tagsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    tools:listitem="@layout/tag_recyclerview_item"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/categoriesRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    tools:listitem="@layout/dish_recyclerview_item"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@id/tagsRecyclerView"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

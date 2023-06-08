@@ -66,6 +66,10 @@ class CartFragment : Fragment() {
 
         binding.cartUserDate.text = viewModel.getUIDateTimeFromUnix(viewModel.getCurrentUnixTime())
 
+        binding.cartSwipeRefreshLayout.setOnRefreshListener {
+            onSwipeUpdateList()
+        }
+
         fillUI()
 
         initGPSLauncher()
@@ -105,11 +109,10 @@ class CartFragment : Fragment() {
                         )
                         adapter = CartListRecyclerAdapter(cartDishes)
                         sendDataToCartRecyclerView(view, adapter)
+                        binding.cartRecyclerView.visibility = View.VISIBLE
 
                     } else {
-                        Toast
-                            .makeText(context, getString(R.string.checkInternetConnection), Toast.LENGTH_SHORT)
-                            .show()
+                        binding.cartRecyclerViewNotFound.visibility = View.VISIBLE
                     }
                 }
             }
@@ -142,6 +145,35 @@ class CartFragment : Fragment() {
                 val cityName = viewModel.getCityName(requireContext()) ?: "Неизвестно"
                 binding.cartUserCity.text = cityName
 
+            }
+        }
+    }
+
+    /** Update data on RecyclerView when user pull-to-refresh */
+    private fun onSwipeUpdateList() {
+        viewModel.updateSharedPreferences(activity, adapter)
+        with(binding) {
+            cartRecyclerView.visibility = View.GONE
+            cartRecyclerViewNotFound.visibility = View.GONE
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.CREATED) {
+                    viewModel.getDishesList()
+                    viewModel.dishesList.collect {
+                        val dishes = it
+                        if (dishes != null) {
+                            val cartDishes = viewModel.prepareDishesToCartRecyclerView(
+                                sharedPref, requireView(), viewModel.checkDishesOnErrors(dishes)
+                            )
+                            adapter.updateList(cartDishes)
+                            cartSwipeRefreshLayout.isRefreshing = false
+                            cartRecyclerView.visibility = View.VISIBLE
+
+                        } else {
+                            cartSwipeRefreshLayout.isRefreshing = false
+                            cartRecyclerViewNotFound.visibility = View.VISIBLE
+                        }
+                    }
+                }
             }
         }
     }

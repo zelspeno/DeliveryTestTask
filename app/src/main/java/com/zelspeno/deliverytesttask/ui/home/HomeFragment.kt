@@ -54,6 +54,10 @@ class HomeFragment : Fragment() {
 
         binding.homeUserDate.text = viewModel.getUIDateTimeFromUnix(viewModel.getCurrentUnixTime())
 
+        binding.homeSwipeRefreshLayout.setOnRefreshListener {
+            onSwipeUpdateList()
+        }
+
         fillUI()
 
         initGPSLauncher()
@@ -72,10 +76,9 @@ class HomeFragment : Fragment() {
                     if (categories != null) {
                         adapter = CategoriesListRecyclerAdapter(categories)
                         sendDataToRecyclerView(view, adapter)
+                        binding.homeRecyclerView.visibility = View.VISIBLE
                     } else {
-                        Toast
-                            .makeText(context, getString(R.string.checkInternetConnection), Toast.LENGTH_SHORT)
-                            .show()
+                        binding.homeRecyclerViewNotFound.visibility = View.VISIBLE
                     }
                 }
             }
@@ -129,5 +132,30 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+    /** Update data on RecyclerView when user pull-to-refresh */
+    private fun onSwipeUpdateList() {
+        with(binding) {
+            homeRecyclerView.visibility = View.GONE
+            homeRecyclerViewNotFound.visibility = View.GONE
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.CREATED) {
+                    viewModel.getCategoriesList()
+                    viewModel.categoriesList.collect {
+                        val categories = it
+                        if (categories != null) {
+                            adapter.updateList(categories)
+                            homeSwipeRefreshLayout.isRefreshing = false
+                            homeRecyclerView.visibility = View.VISIBLE
+                        } else {
+                            homeSwipeRefreshLayout.isRefreshing = false
+                            homeRecyclerViewNotFound.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 }

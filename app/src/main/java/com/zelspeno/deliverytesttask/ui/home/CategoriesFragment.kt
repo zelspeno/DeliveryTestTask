@@ -54,6 +54,10 @@ class CategoriesFragment : Fragment() {
             viewModel.moveToFragment(view, R.id.navigation_home)
         }
 
+        binding.categoriesSwipeRefreshLayout.setOnRefreshListener {
+            onSwipeUpdateList()
+        }
+
         fillUI()
 
         return binding.root
@@ -73,10 +77,9 @@ class CategoriesFragment : Fragment() {
                         adapterTags = TagsListRecyclerAdapter(tags)
                         sendDataToDishesRecyclerView(view, adapterDishes)
                         sendDataToTagsRecyclerView(view, adapterTags, adapterDishes)
+                        binding.categoriesRecyclerViewsContainer.visibility = View.VISIBLE
                     } else {
-                        Toast
-                            .makeText(context, getString(R.string.checkInternetConnection), Toast.LENGTH_SHORT)
-                            .show()
+                        binding.categoriesRecyclerViewNotFound.visibility = View.VISIBLE
                     }
                 }
             }
@@ -115,5 +118,32 @@ class CategoriesFragment : Fragment() {
                 viewModel.onTagClick(tag, allDishesList, adapterTags, adapterDishes)
             }
         })
+    }
+
+    /** Update data on RecyclerView when user pull-to-refresh */
+    private fun onSwipeUpdateList() {
+        with(binding) {
+            categoriesRecyclerViewsContainer.visibility = View.GONE
+            categoriesRecyclerViewNotFound.visibility = View.GONE
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.CREATED) {
+                    viewModel.getDishesList()
+                    viewModel.dishesList.collect {
+                        val dishes = it
+                        if (dishes != null) {
+                            allDishesList = viewModel.checkDishesOnErrors(dishes)
+                            val tags = viewModel.getTagsList(dishes)
+                            adapterDishes.updateList(allDishesList)
+                            adapterTags.updateList(tags)
+                            categoriesSwipeRefreshLayout.isRefreshing = false
+                            categoriesRecyclerViewsContainer.visibility = View.VISIBLE
+                        } else {
+                            categoriesSwipeRefreshLayout.isRefreshing = false
+                            categoriesRecyclerViewNotFound.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+        }
     }
 }

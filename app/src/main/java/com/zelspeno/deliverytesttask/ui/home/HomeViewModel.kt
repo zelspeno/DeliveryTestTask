@@ -215,7 +215,7 @@ class HomeViewModel : ViewModel() {
         val dialog = Dialog(context)
         with(dialog) {
             setContentView(R.layout.dialog_dish)
-            window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setCanceledOnTouchOutside(true)
         }
