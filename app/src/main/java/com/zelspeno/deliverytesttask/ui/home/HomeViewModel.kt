@@ -1,20 +1,15 @@
 package com.zelspeno.deliverytesttask.ui.home
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Geocoder
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
-import android.location.LocationRequest
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -23,13 +18,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationToken
 import com.squareup.picasso.Picasso
 import com.zelspeno.deliverytesttask.R
 import com.zelspeno.deliverytesttask.source.*
@@ -45,7 +36,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.function.Consumer
 
 
 class HomeViewModel : ViewModel() {
@@ -55,9 +45,6 @@ class HomeViewModel : ViewModel() {
 
     private val _dishesList = MutableSharedFlow<List<Dish>?>()
     val dishesList = _dishesList.asSharedFlow()
-
-    private val _userCity = MutableSharedFlow<String?>()
-    val userCity = _userCity.asSharedFlow()
 
     /** Emit values to [categoriesList] */
     fun getCategoriesList() {
@@ -268,10 +255,11 @@ class HomeViewModel : ViewModel() {
     }
 
     /** On [tag] clicked logic */
-    fun onTagClick(tag: Tag,
-                   allDishesList: List<Dish>,
-                   adapterTags: TagsListRecyclerAdapter,
-                   adapterDishes: DishesListRecyclerAdapter,
+    fun onTagClick(
+        tag: Tag,
+        allDishesList: List<Dish>,
+        adapterTags: TagsListRecyclerAdapter,
+        adapterDishes: DishesListRecyclerAdapter,
     ) {
         val list = adapterTags.getList()
         val newList = mutableListOf<Tag>()
@@ -288,4 +276,44 @@ class HomeViewModel : ViewModel() {
         val dishes = getDishesByTag(allDishesList, tag)
         adapterDishes.updateList(dishes)
     }
+
+    /** Get user's latitude and longitude and return listOf(latitude, longitude)  */
+    @SuppressLint("MissingPermission")
+    fun getUsersLocation(context: Context): List<Double?> {
+        val lm = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        val location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val longitude = location?.longitude
+        val latitude = location?.latitude
+        return listOf(latitude, longitude)
+    }
+
+    /** Return user's cityName
+     * onFail - return null */
+    fun getCityName(context: Context): String? {
+        val list = getUsersLocation(context)
+        val latitude = list[0]
+        val longitude = list[1]
+        val geocoder = Geocoder(context, Locale.forLanguageTag("ru-RU"))
+        if (latitude != null && longitude != null) {
+            val adresses = geocoder.getFromLocation(latitude, longitude, 1)
+            return adresses?.get(0)?.locality
+        } else {
+            return null
+        }
+    }
+
+    /** Get GPS Dialog */
+    fun getGPSDialog(context: Context): Dialog {
+        val dialog = Dialog(context)
+        with(dialog) {
+            setContentView(R.layout.dialog_turn_gps)
+            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCanceledOnTouchOutside(false)
+        }
+        return dialog
+    }
+
+    /** Return current UNIX-time */
+    fun getCurrentUnixTime() = System.currentTimeMillis() / 1000
 }

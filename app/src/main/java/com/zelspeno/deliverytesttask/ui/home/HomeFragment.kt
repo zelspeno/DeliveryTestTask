@@ -1,11 +1,19 @@
 package com.zelspeno.deliverytesttask.ui.home
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +37,13 @@ class HomeFragment : Fragment() {
 
     private val viewModel by viewModelCreator { HomeViewModel() }
 
+    private lateinit var launcherGPS: ActivityResultLauncher<Array<String>>
+
+    private val permList = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,11 +52,12 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        val curTime = System.currentTimeMillis() / 1000
-
-        binding.homeUserDate.text = viewModel.getUIDateTimeFromUnix(curTime)
+        binding.homeUserDate.text = viewModel.getUIDateTimeFromUnix(viewModel.getCurrentUnixTime())
 
         fillUI()
+
+        initGPSLauncher()
+        launcherGPS.launch(permList)
 
         return binding.root
     }
@@ -83,4 +99,35 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
+    /** Init GPS logic */
+    private fun initGPSLauncher() {
+
+        launcherGPS = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+
+            if (it.containsValue(false)) {
+
+                val dialog = viewModel.getGPSDialog(requireContext())
+                val buttonClose = dialog.findViewById<Button>(R.id.dialogGPSBodyCloseButton)
+                val buttonSettings = dialog.findViewById<Button>(R.id.dialogGPSBodyMoveToSettingsButton)
+
+                buttonClose.setOnClickListener {
+                    dialog.dismiss()
+                    launcherGPS.launch(permList)
+                }
+
+                buttonSettings.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+
+                dialog.show()
+
+            } else {
+                val cityName = viewModel.getCityName(requireContext()) ?: "Неизвестно"
+                binding.homeUserCity.text = cityName
+
+            }
+        }
+    }
+
 }

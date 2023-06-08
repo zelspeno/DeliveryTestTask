@@ -6,7 +6,7 @@
     <string name="search">Поиск</string>
     <string name="cart">Корзина</string>
     <string name="account">Аккаунт</string>
-    <string name="cityExample">Москва</string>
+    <string name="cityExample">Неизвестно</string>
     <string name="dateExample">01 января, 2023</string>
     <string name="categoryExample">Пекарни и кондитерские</string>
     <string name="checkInternetConnection">Проверьте соединение с интернетом</string>
@@ -18,4 +18,7 @@
     <string name="addToCart">Добавить в корзину</string>
     <string name="pay">Оплатить</string>
     <string name="inDeveloping">В разработке...</string>
+    <string name="sure">Понятно</string>
+    <string name="moveToSettings">Перейти в настройки</string>
+    <string name="turnGPS">Для корректной работы, требуется разрешить приложению доступ к местоположению.\nПожалуйста, нажмите \'разрешить\'.\nЛибо перейдите в настройки устройства и выдайте разрешение приложению.</string>
 </resources>

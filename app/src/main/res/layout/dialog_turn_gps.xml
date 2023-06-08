@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    card_view:cardCornerRadius="15dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/mainBackgroundColor">
+
+        <TextView
+            android:id="@+id/dialogGPSBody"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:text="@string/turnGPS"
+            android:textColor="@color/mainTextColor"
+            android:textAlignment="center"
+            android:textSize="@dimen/dishDialogBodyTextSize"
+            android:layout_margin="4dp"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/dialogGPSBodyMoveToSettingsButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/moveToSettings"
+            android:background="@drawable/clicked_tag_style"
+            android:textColor="@color/white"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:textSize="@dimen/dishDialogButtonTextSize"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintStart_toStartOf="@id/dialogGPSBody"
+            app:layout_constraintEnd_toEndOf="@id/dialogGPSBody"
+            app:layout_constraintTop_toBottomOf="@id/dialogGPSBody" />
+
+        <Button
+            android:id="@+id/dialogGPSBodyCloseButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sure"
+            android:background="@drawable/clicked_tag_style"
+            android:textColor="@color/white"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:textSize="@dimen/dishDialogButtonTextSize"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintStart_toStartOf="@id/dialogGPSBodyMoveToSettingsButton"
+            app:layout_constraintEnd_toEndOf="@id/dialogGPSBodyMoveToSettingsButton"
+            app:layout_constraintTop_toBottomOf="@id/dialogGPSBodyMoveToSettingsButton"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
