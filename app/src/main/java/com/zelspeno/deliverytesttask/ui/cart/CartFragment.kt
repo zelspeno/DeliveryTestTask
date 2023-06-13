@@ -1,58 +1,47 @@
 package com.zelspeno.deliverytesttask.ui.cart
 
-import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zelspeno.deliverytesttask.R
 import com.zelspeno.deliverytesttask.databinding.FragmentCartBinding
-import com.zelspeno.deliverytesttask.databinding.FragmentCategoriesBinding
 import com.zelspeno.deliverytesttask.source.CartDish
-import com.zelspeno.deliverytesttask.source.Category
-import com.zelspeno.deliverytesttask.source.Dish
-import com.zelspeno.deliverytesttask.ui.home.CategoriesListRecyclerAdapter
-import com.zelspeno.deliverytesttask.ui.home.DishesListRecyclerAdapter
 import com.zelspeno.deliverytesttask.ui.home.HomeViewModel
-import com.zelspeno.deliverytesttask.ui.home.TagsListRecyclerAdapter
-import com.zelspeno.deliverytesttask.utils.viewModelCreator
-import kotlinx.coroutines.flow.collect
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Named
 
+@AndroidEntryPoint
 class CartFragment : Fragment() {
 
     private var _binding: FragmentCartBinding? = null
 
     private val binding get() = _binding!!
 
-    private val viewModel by viewModelCreator { HomeViewModel() }
-
-    private var sharedPref: SharedPreferences? = null
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var adapter: CartListRecyclerAdapter
 
     private lateinit var launcherGPS: ActivityResultLauncher<Array<String>>
 
-    private val permList = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
+    @Inject
+    @Named("GpsPermissions")
+    lateinit var permList: Array<String>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,8 +50,6 @@ class CartFragment : Fragment() {
     ): View {
 
         _binding = FragmentCartBinding.inflate(inflater, container, false)
-
-        sharedPref = activity?.getSharedPreferences("cart", Context.MODE_PRIVATE)
 
         binding.cartUserDate.text = viewModel.getUIDateTimeFromUnix(viewModel.getCurrentUnixTime())
 
@@ -79,7 +66,7 @@ class CartFragment : Fragment() {
     }
 
     /** Init settings for CartRecyclerView */
-    private fun sendDataToCartRecyclerView(v: View?, adapterRV: CartListRecyclerAdapter) {
+    private fun sendDataToCartRecyclerView(adapterRV: CartListRecyclerAdapter) {
         val recyclerView = binding.cartRecyclerView
         with(recyclerView) {
             adapter = adapterRV
@@ -105,10 +92,10 @@ class CartFragment : Fragment() {
                     val dishes = it
                     if (dishes != null) {
                         val cartDishes = viewModel.prepareDishesToCartRecyclerView(
-                            sharedPref, requireView(), viewModel.checkDishesOnErrors(dishes)
+                            viewModel.checkDishesOnErrors(dishes)
                         )
                         adapter = CartListRecyclerAdapter(cartDishes)
-                        sendDataToCartRecyclerView(view, adapter)
+                        sendDataToCartRecyclerView(adapter)
                         binding.cartRecyclerView.visibility = View.VISIBLE
 
                     } else {
@@ -142,7 +129,7 @@ class CartFragment : Fragment() {
                 dialog.show()
 
             } else {
-                val cityName = viewModel.getCityName(requireContext()) ?: "Неизвестно"
+                val cityName = viewModel.getCityName().get() ?: "Неизвестно"
                 binding.cartUserCity.text = cityName
 
             }
@@ -151,7 +138,7 @@ class CartFragment : Fragment() {
 
     /** Update data on RecyclerView when user pull-to-refresh */
     private fun onSwipeUpdateList() {
-        viewModel.updateSharedPreferences(activity, adapter)
+        viewModel.updateSharedPreferences(adapter)
         with(binding) {
             cartRecyclerView.visibility = View.GONE
             cartRecyclerViewNotFound.visibility = View.GONE
@@ -162,7 +149,7 @@ class CartFragment : Fragment() {
                         val dishes = it
                         if (dishes != null) {
                             val cartDishes = viewModel.prepareDishesToCartRecyclerView(
-                                sharedPref, requireView(), viewModel.checkDishesOnErrors(dishes)
+                                viewModel.checkDishesOnErrors(dishes)
                             )
                             adapter.updateList(cartDishes)
                             cartSwipeRefreshLayout.isRefreshing = false
@@ -180,6 +167,6 @@ class CartFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.updateSharedPreferences(activity, adapter)
+        viewModel.updateSharedPreferences(adapter)
     }
 }

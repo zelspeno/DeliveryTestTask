@@ -1,32 +1,29 @@
 package com.zelspeno.deliverytesttask.ui.home
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.zelspeno.deliverytesttask.R
 import com.zelspeno.deliverytesttask.databinding.FragmentHomeBinding
 import com.zelspeno.deliverytesttask.source.Category
-import com.zelspeno.deliverytesttask.utils.viewModelCreator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Named
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -35,14 +32,14 @@ class HomeFragment : Fragment() {
 
     private lateinit var adapter: CategoriesListRecyclerAdapter
 
-    private val viewModel by viewModelCreator { HomeViewModel() }
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var launcherGPS: ActivityResultLauncher<Array<String>>
 
-    private val permList = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
+    @Inject
+    @Named("GpsPermissions")
+    lateinit var permList: Array<String>
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -126,7 +123,7 @@ class HomeFragment : Fragment() {
                 dialog.show()
 
             } else {
-                val cityName = viewModel.getCityName(requireContext()) ?: "Неизвестно"
+                val cityName = viewModel.getCityName().get() ?: "Неизвестно"
                 binding.homeUserCity.text = cityName
 
             }

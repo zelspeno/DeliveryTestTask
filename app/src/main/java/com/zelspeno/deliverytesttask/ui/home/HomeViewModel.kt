@@ -1,15 +1,10 @@
 package com.zelspeno.deliverytesttask.ui.home
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.content.Context.LOCATION_SERVICE
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.location.Geocoder
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -25,20 +20,25 @@ import com.squareup.picasso.Picasso
 import com.zelspeno.deliverytesttask.R
 import com.zelspeno.deliverytesttask.source.*
 import com.zelspeno.deliverytesttask.ui.cart.CartListRecyclerAdapter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Named
+import dagger.Lazy
 
-
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val repository: ProductRepository,
+    @Named("cityName") private val cityName: Lazy<String?>,
+    private val cartSharedPref: SharedPreferences?
+    ) : ViewModel() {
 
     private val _categoriesList = MutableSharedFlow<List<Category>?>()
     val categoriesList = _categoriesList.asSharedFlow()
@@ -48,16 +48,8 @@ class HomeViewModel : ViewModel() {
 
     /** Emit values to [categoriesList] */
     fun getCategoriesList() {
-        val client = OkHttpClient.Builder().build()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Const.BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        val api = retrofit.create(DeliveryApi::class.java)
-
-        val response: Call<CategoriesJSONObject> = api.getCategoriesList(Const.CATEGORIES_URL)
+        val response: Call<CategoriesJSONObject> = repository.getCategoriesJson()
 
         response.enqueue(object: Callback<CategoriesJSONObject> {
             override fun onResponse(call: Call<CategoriesJSONObject>, response: Response<CategoriesJSONObject>) {
@@ -77,16 +69,8 @@ class HomeViewModel : ViewModel() {
 
     /** Emit values to [dishesList] */
     fun getDishesList() {
-        val client = OkHttpClient.Builder().build()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Const.BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        val api = retrofit.create(DeliveryApi::class.java)
-
-        val response: Call<DishesJSONObject> = api.getDishesList(Const.DISHES_URL)
+        val response: Call<DishesJSONObject> = repository.getDishesJson()
 
         response.enqueue(object: Callback<DishesJSONObject> {
             override fun onResponse(call: Call<DishesJSONObject>, response: Response<DishesJSONObject>) {
@@ -170,11 +154,11 @@ class HomeViewModel : ViewModel() {
     }
 
     /** Prepare [dishes] to send on RecyclerView */
-    fun prepareDishesToCartRecyclerView(sharedPref: SharedPreferences?, v: View, dishes: List<Dish>)
+    fun prepareDishesToCartRecyclerView(dishes: List<Dish>)
         : List<CartDish> {
         val res = mutableListOf<CartDish>()
-        if (sharedPref != null) {
-            for (i in sharedPref.all) {
+        if (cartSharedPref != null) {
+            for (i in cartSharedPref.all) {
                 for (j in dishes) {
                     if (i.key.toLong() == j.id) {
                         res.add(
@@ -201,17 +185,16 @@ class HomeViewModel : ViewModel() {
     }
 
     /** Update shared preferences */
-    fun updateSharedPreferences(activity: Activity?, adapter: CartListRecyclerAdapter) {
-        val sharedPref = activity?.getSharedPreferences("cart", Context.MODE_PRIVATE)
-        sharedPref?.edit()?.clear()?.apply()
+    fun updateSharedPreferences(adapter: CartListRecyclerAdapter) {
+        cartSharedPref?.edit()?.clear()?.apply()
         val list = adapter.getList()
         for (i in list) {
-            sharedPref?.edit()?.putInt("${i.id}", i.count!!)?.apply()
+            cartSharedPref?.edit()?.putInt("${i.id}", i.count!!)?.apply()
         }
     }
 
     /** Show dish Dialog */
-    fun showDishDialog(context: Context, dish: Dish, sharedPref: SharedPreferences?) {
+    fun showDishDialog(context: Context, dish: Dish) {
         val dialog = Dialog(context)
         with(dialog) {
             setContentView(R.layout.dialog_dish)
@@ -229,7 +212,7 @@ class HomeViewModel : ViewModel() {
         val description = dialog.findViewById<TextView>(R.id.dialogDishDescription)
 
         buttonAdd.setOnClickListener {
-            sharedPref?.edit()?.putInt("${dish.id}", 1)?.apply()
+            cartSharedPref?.edit()?.putInt("${dish.id}", 1)?.apply()
             Toast
                 .makeText(context, "Блюдо '${dish.name}' добавлено в корзину", Toast.LENGTH_SHORT)
                 .show()
@@ -277,30 +260,9 @@ class HomeViewModel : ViewModel() {
         adapterDishes.updateList(dishes)
     }
 
-    /** Get user's latitude and longitude and return listOf(latitude, longitude)  */
-    @SuppressLint("MissingPermission")
-    fun getUsersLocation(context: Context): List<Double?> {
-        val lm = context.getSystemService(LOCATION_SERVICE) as LocationManager
-        val location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        val longitude = location?.longitude
-        val latitude = location?.latitude
-        return listOf(latitude, longitude)
-    }
-
     /** Return user's cityName
      * onFail - return null */
-    fun getCityName(context: Context): String? {
-        val list = getUsersLocation(context)
-        val latitude = list[0]
-        val longitude = list[1]
-        val geocoder = Geocoder(context, Locale.forLanguageTag("ru-RU"))
-        if (latitude != null && longitude != null) {
-            val adresses = geocoder.getFromLocation(latitude, longitude, 1)
-            return adresses?.get(0)?.locality
-        } else {
-            return null
-        }
-    }
+    fun getCityName(): Lazy<String?> = cityName
 
     /** Get GPS Dialog */
     fun getGPSDialog(context: Context): Dialog {

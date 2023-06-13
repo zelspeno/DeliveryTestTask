@@ -1,13 +1,11 @@
 package com.zelspeno.deliverytesttask.ui.home
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,9 +16,10 @@ import com.zelspeno.deliverytesttask.databinding.FragmentCategoriesBinding
 import com.zelspeno.deliverytesttask.source.Category
 import com.zelspeno.deliverytesttask.source.Dish
 import com.zelspeno.deliverytesttask.source.Tag
-import com.zelspeno.deliverytesttask.utils.viewModelCreator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CategoriesFragment : Fragment() {
 
     private var _binding: FragmentCategoriesBinding? = null
@@ -30,11 +29,9 @@ class CategoriesFragment : Fragment() {
     private lateinit var adapterDishes: DishesListRecyclerAdapter
     private lateinit var adapterTags: TagsListRecyclerAdapter
 
-    private val viewModel by viewModelCreator { HomeViewModel() }
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var allDishesList: List<Dish>
-
-    private var sharedPref: SharedPreferences? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,7 +43,6 @@ class CategoriesFragment : Fragment() {
 
         val category = this.arguments?.getSerializable("category") as Category
 
-        sharedPref = activity?.getSharedPreferences("cart", Context.MODE_PRIVATE)
 
         binding.categoriesHeaderName.text = category.name
 
@@ -76,7 +72,7 @@ class CategoriesFragment : Fragment() {
                         adapterDishes = DishesListRecyclerAdapter(viewModel.checkDishesOnErrors(dishes))
                         adapterTags = TagsListRecyclerAdapter(tags)
                         sendDataToDishesRecyclerView(view, adapterDishes)
-                        sendDataToTagsRecyclerView(view, adapterTags, adapterDishes)
+                        sendDataToTagsRecyclerView(adapterTags, adapterDishes)
                         binding.categoriesRecyclerViewsContainer.visibility = View.VISIBLE
                     } else {
                         binding.categoriesRecyclerViewNotFound.visibility = View.VISIBLE
@@ -97,14 +93,13 @@ class CategoriesFragment : Fragment() {
         adapterRV.setOnItemClickListener(object :
             DishesListRecyclerAdapter.onItemClickListener {
             override fun onItemClick(dish: Dish) {
-                viewModel.showDishDialog(v!!.context, dish, sharedPref)
+                viewModel.showDishDialog(v!!.context, dish)
             }
         })
     }
 
     /** Init settings for TagsRecyclerView */
-    private fun sendDataToTagsRecyclerView(v: View?,
-                                           adapterTags: TagsListRecyclerAdapter,
+    private fun sendDataToTagsRecyclerView(adapterTags: TagsListRecyclerAdapter,
                                            adapterDishes: DishesListRecyclerAdapter) {
         val recyclerView = binding.tagsRecyclerView
         with(recyclerView) {

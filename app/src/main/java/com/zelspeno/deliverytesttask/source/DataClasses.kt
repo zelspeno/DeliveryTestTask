@@ -45,3 +45,8 @@ data class CartDish(
     val imageUrl: String?,
     var count: Int?
 )
+
+data class Coordinates(
+    val latitude: Double?,
+    val longitude: Double?
+)

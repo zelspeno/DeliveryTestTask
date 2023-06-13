@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -53,6 +55,15 @@ dependencies {
 
     // Shimmer effect to views
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // DI framework - dagger2/Hilt
+    implementation 'com.google.dagger:dagger:2.46.1'
+    kapt 'com.google.dagger:dagger-compiler:2.46.1'
+
+    def hilt_version="2.44"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
